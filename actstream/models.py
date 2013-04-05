@@ -157,29 +157,23 @@ model_stream = Action.objects.model_actions
 followers = Follow.objects.followers
 following = Follow.objects.following
 
-def setup_generic_relations():
+def actstream_register_model(model):
     """
-    Set up GenericRelations for actionable models.
+    Set up GenericRelations for a given actionable model.
     """
-    for model in actstream_settings.get_models().values():
-        if not model:
-            continue
-        for field in ('actor', 'target', 'action_object'):
-            generic.GenericRelation(Action,
-                content_type_field='%s_content_type' % field,
-                object_id_field='%s_object_id' % field,
-                related_name='actions_with_%s_%s_as_%s' % (
-                    model._meta.app_label, model._meta.module_name, field),
-            ).contribute_to_class(model, '%s_actions' % field)
+    for field in ('actor', 'target', 'action_object'):
+        generic.GenericRelation(Action,
+                                content_type_field='%s_content_type' % field,
+                                object_id_field='%s_object_id' % field,
+                                related_name='actions_with_%s_%s_as_%s' % (
+                                    model._meta.app_label, model._meta.module_name, field),
+                            ).contribute_to_class(model, '%s_actions' % field)
 
-            # @@@ I'm not entirely sure why this works
-            setattr(Action, 'actions_with_%s_%s_as_%s' % (
-                model._meta.app_label, model._meta.module_name, field), None)
+        # @@@ I'm not entirely sure why this works
+        setattr(Action, 'actions_with_%s_%s_as_%s' % (
+            model._meta.app_label, model._meta.module_name, field), None)
 
-
-setup_generic_relations()
-
-
+        
 if actstream_settings.USE_JSONFIELD:
     try:
         from jsonfield.fields import JSONField
