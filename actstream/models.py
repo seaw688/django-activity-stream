@@ -161,7 +161,15 @@ followers = Follow.objects.followers
 following = Follow.objects.following
 
 def actstream_register_model(model):
+    """
+    Set up GenericRelations for a given actionable model.
+    You can call it directly to register "hidden models", such as django-hvad translations
+    """
     for field in ('actor', 'target', 'action_object'):
+        attr = '%s_actions' % field
+        if isinstance(getattr(model, attr, None),
+                      generic.ReverseGenericRelatedObjectsDescriptor):
+            break
         generic.GenericRelation(Action,
                                 content_type_field='%s_content_type' % field,
                                 object_id_field='%s_object_id' % field,
@@ -175,27 +183,12 @@ def actstream_register_model(model):
 
 def setup_generic_relations():
     """
-    Set up GenericRelations for a given actionable model.
+    Set up GenericRelations for actionable models.
     """
     for model in actstream_settings.get_models().values():
         if not model:
             continue
-        for field in ('actor', 'target', 'action_object'):
-            attr = '%s_actions' % field
-            if isinstance(getattr(model, attr, None),
-                          generic.ReverseGenericRelatedObjectsDescriptor):
-                break
-            generic.GenericRelation(Action,
-                content_type_field='%s_content_type' % field,
-                object_id_field='%s_object_id' % field,
-                related_name='actions_with_%s_%s_as_%s' % (
-                    model._meta.app_label, model._meta.module_name, field),
-            ).contribute_to_class(model, attr)
-
-            # @@@ I'm not entirely sure why this works
-            setattr(Action, 'actions_with_%s_%s_as_%s' % (
-                model._meta.app_label, model._meta.module_name, field), None)
-
+        actstream_register_model(model)
 
 setup_generic_relations()
 
