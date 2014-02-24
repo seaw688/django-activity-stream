@@ -1,5 +1,10 @@
-from django.conf.urls.defaults import *
+try:
+    from django.conf.urls import url, patterns
+except ImportError:
+    from django.conf.urls.defaults import url, patterns
+
 from actstream import feeds
+
 
 urlpatterns = patterns('actstream.views',
     # Syndication Feeds
@@ -35,6 +40,6 @@ urlpatterns = patterns('actstream.views',
         'model', name='actstream_model'),
 
     url(r'^detail/(?P<action_id>\d+)/$', 'detail', name='actstream_detail'),
-    url(r'^(?P<username>[-\w]+)/$', 'user', name='actstream_user'),
+    url(r'^(?P<username>.+)/$', 'user', name='actstream_user'),
     url(r'^$', 'stream', name='actstream'),
 )
