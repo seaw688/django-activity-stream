@@ -112,7 +112,7 @@ def users(request):
 
 def user_override(user):
     from django.contrib.contenttypes.models import ContentType
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
     return reverse('actstream_actor',None,(ContentType.objects.get_for_model(user).pk,user.pk))
 
 ABSOLUTE_URL_OVERRIDES = {
