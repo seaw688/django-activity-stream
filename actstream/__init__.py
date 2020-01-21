@@ -4,7 +4,7 @@ except ImportError:
     pass
 
 __version_info__ = {
-    'major': 0,
+    'major': 1,
     'minor': 4,
     'micro': 5,
     'releaselevel': 'beta',
